@@ -125,7 +125,7 @@ function App() {
           <input
             type="range"
             min="1"
-            max="10"
+            max="100"
             value={loopCount}
             onChange={(e) => setLoopCount(Number(e.target.value))}
             style={{ width: "100%" }}
@@ -203,7 +203,7 @@ function App() {
                 onChange={(e) => setExtendCount(Number(e.target.value))}
                 style={{ marginLeft: "8px" }}
               >
-                {[1, 2, 3, 4, 5].map((n) => (
+                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                   <option key={n} value={n}>
                     {n} loops
                   </option>

@@ -13,6 +13,7 @@ A monorepo app for continuously looping and extending short audio clips with FFm
 3. Keep extending the latest generated output (without uploading again).
 4. Preview and download each new version.
 5. Optionally enable **Smart beat alignment** with BPM + beats-per-loop for tighter rhythmic loops.
+6. Loop count supports up to 100 repeats for longer generated outputs.
 
 ## Structure
 
@@ -62,3 +63,5 @@ The server serves the built frontend in production mode.
 - Set `NODE_ENV=production` and `PORT` from Railway.
 - Start command: `pnpm start`
 
+
+When extending with beat alignment, the existing output is preserved and new beat-sized units are appended so the track grows continuously.
