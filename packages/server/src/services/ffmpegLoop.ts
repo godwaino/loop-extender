@@ -1,6 +1,10 @@
 import ffmpeg from "fluent-ffmpeg";
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import fs from "fs";
 import path from "path";
+
+const ffmpegPath = process.env.FFMPEG_PATH || ffmpegInstaller.path;
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 export function loopAudio(
   inputPath: string,
@@ -17,17 +21,17 @@ export function loopAudio(
 
     ffmpeg(inputPath)
       .audioFilters(`aloop=loop=${loopCount - 1}:size=2e+09`)
-      .audioCodec('libmp3lame')
-      .audioBitrate('192k')
-      .on('end', () => {
+      .audioCodec("libmp3lame")
+      .audioBitrate("192k")
+      .on("end", () => {
         if (cleanupInput) {
           fs.unlink(inputPath, (err: NodeJS.ErrnoException | null) => {
-            if (err) console.error('Failed to delete upload:', err);
+            if (err) console.error("Failed to delete upload:", err);
           });
         }
         resolve();
       })
-      .on('error', (err: Error) => {
+      .on("error", (err: Error) => {
         if (cleanupInput) {
           fs.unlink(inputPath, () => {});
         }

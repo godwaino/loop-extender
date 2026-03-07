@@ -57,7 +57,7 @@ The server serves the built frontend in production mode.
 
 ## Railway notes
 
-- Ensure FFmpeg is installed in your Railway runtime image.
+- FFmpeg is bundled via `@ffmpeg-installer/ffmpeg` by default. You can override with `FFMPEG_PATH` if needed.
 - Set `NODE_ENV=production` and `PORT` from Railway.
 - Start command: `pnpm start`
 
