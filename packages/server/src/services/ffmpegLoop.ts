@@ -21,13 +21,13 @@ export function loopAudio(
       .audioBitrate('192k')
       .on('end', () => {
         if (cleanupInput) {
-          fs.unlink(inputPath, (err) => {
+          fs.unlink(inputPath, (err: NodeJS.ErrnoException | null) => {
             if (err) console.error('Failed to delete upload:', err);
           });
         }
         resolve();
       })
-      .on('error', (err) => {
+      .on('error', (err: Error) => {
         if (cleanupInput) {
           fs.unlink(inputPath, () => {});
         }
