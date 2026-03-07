@@ -17,6 +17,9 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [loopCount, setLoopCount] = useState(3);
   const [extendCount, setExtendCount] = useState(2);
+  const [enableBeatAlign, setEnableBeatAlign] = useState(false);
+  const [bpm, setBpm] = useState(120);
+  const [beatsPerLoop, setBeatsPerLoop] = useState(4);
   const [loading, setLoading] = useState(false);
   const [extending, setExtending] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -40,6 +43,11 @@ function App() {
     const formData = new FormData();
     formData.append("audio", file);
     formData.append("loopCount", String(loopCount));
+
+    if (enableBeatAlign) {
+      formData.append("bpm", String(bpm));
+      formData.append("beatsPerLoop", String(beatsPerLoop));
+    }
 
     try {
       const res = await fetch(`${API_BASE}/loop`, {
@@ -75,6 +83,7 @@ function App() {
         body: JSON.stringify({
           filename: currentFilename,
           additionalLoops: extendCount,
+          ...(enableBeatAlign ? { bpm, beatsPerLoop } : {}),
         }),
       });
 
@@ -121,6 +130,47 @@ function App() {
             onChange={(e) => setLoopCount(Number(e.target.value))}
             style={{ width: "100%" }}
           />
+        </div>
+
+        <div style={{ marginBottom: "15px", padding: "12px", border: "1px solid #ddd", borderRadius: "6px" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontWeight: 600 }}>
+            <input
+              type="checkbox"
+              checked={enableBeatAlign}
+              onChange={(e) => setEnableBeatAlign(e.target.checked)}
+              style={{ marginRight: "8px" }}
+            />
+            Smart beat alignment
+          </label>
+          <p style={{ margin: "0 0 10px 0", color: "#666", fontSize: "14px" }}>
+            Trim each source loop to a beat-sized length before repeating.
+          </p>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+            <label>
+              BPM:
+              <input
+                type="number"
+                min={40}
+                max={240}
+                value={bpm}
+                disabled={!enableBeatAlign}
+                onChange={(e) => setBpm(Number(e.target.value))}
+                style={{ marginLeft: "8px", width: "90px" }}
+              />
+            </label>
+            <label>
+              Beats per loop:
+              <input
+                type="number"
+                min={1}
+                max={32}
+                value={beatsPerLoop}
+                disabled={!enableBeatAlign}
+                onChange={(e) => setBeatsPerLoop(Number(e.target.value))}
+                style={{ marginLeft: "8px", width: "90px" }}
+              />
+            </label>
+          </div>
         </div>
 
         <button

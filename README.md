@@ -12,6 +12,7 @@ A monorepo app for continuously looping and extending short audio clips with FFm
 2. Generate an initial looped output.
 3. Keep extending the latest generated output (without uploading again).
 4. Preview and download each new version.
+5. Optionally enable **Smart beat alignment** with BPM + beats-per-loop for tighter rhythmic loops.
 
 ## Structure
 
@@ -28,7 +29,7 @@ loop-extender/
 
 - Node.js 18+
 - pnpm 9+
-- FFmpeg available in PATH
+- No system FFmpeg required by default (bundled via `@ffmpeg-installer/ffmpeg`)
 
 ## Local development
 
@@ -51,8 +52,8 @@ The server serves the built frontend in production mode.
 
 ## API endpoints
 
-- `POST /api/loop` – upload + create initial loop
-- `POST /api/loop/extend` – extend an existing generated file
+- `POST /api/loop` – upload + create initial loop (optionally pass `bpm` + `beatsPerLoop`)
+- `POST /api/loop/extend` – extend an existing generated file (optionally pass `bpm` + `beatsPerLoop`)
 - `GET /api/loop/download/:filename` – download generated output
 
 ## Railway notes
