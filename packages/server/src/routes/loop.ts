@@ -113,6 +113,45 @@ router.post("/extend", async (req, res) => {
   }
 });
 
+router.post("/extend", async (req, res) => {
+  try {
+    const { filename, additionalLoops } = req.body as {
+      filename?: string;
+      additionalLoops?: number;
+    };
+
+    if (!filename) {
+      return res.status(400).json({ error: "filename is required" });
+    }
+
+    const sourceFilename = path.basename(filename);
+    const sourcePath = path.join("outputs", sourceFilename);
+
+    if (!fs.existsSync(sourcePath)) {
+      return res.status(404).json({ error: "Source audio not found" });
+    }
+
+    const loopCount = Number(additionalLoops || 2);
+    if (!Number.isInteger(loopCount) || loopCount < 1 || loopCount > 100) {
+      return res.status(400).json({ error: "additionalLoops must be an integer between 1 and 100" });
+    }
+
+    const outputFilename = `${uuidv4()}.mp3`;
+    const outputPath = path.join("outputs", outputFilename);
+
+    await loopAudio(sourcePath, outputPath, loopCount, false);
+
+    return res.json({
+      success: true,
+      downloadUrl: `/api/loop/download/${outputFilename}`,
+      filename: outputFilename,
+    });
+  } catch (error: any) {
+    console.error("Extend loop error:", error);
+    return res.status(500).json({ error: error.message || "Failed to extend audio" });
+  }
+});
+
 router.get("/download/:filename", (req, res) => {
   const safeFilename = path.basename(req.params.filename);
   const filepath = path.join("outputs", safeFilename);
