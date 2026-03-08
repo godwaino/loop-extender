@@ -40,6 +40,11 @@ function App() {
     return `${downloadUrl}?t=${Date.now()}`;
   }, [downloadUrl]);
 
+  const previewUrl = useMemo(() => {
+    if (!downloadUrl) return null;
+    return `${downloadUrl}?t=${Date.now()}`;
+  }, [downloadUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
