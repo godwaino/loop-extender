@@ -1,73 +1,71 @@
-# Background Audio Loop SaaS
+# Loop Extender
 
-A monorepo project for looping audio files using FFmpeg, with an Express backend and React frontend.
+A monorepo app for continuously looping and extending short audio clips with FFmpeg.
+
+- **Backend**: Express + TypeScript
+- **Frontend**: React + Vite + TypeScript
+- **Deploy target**: Railway
+
+## What it does
+
+1. Upload a short audio clip.
+2. Generate an initial looped output.
+3. Keep extending the latest generated output (without uploading again).
+4. Preview and download each new version.
+5. Optionally enable **Smart beat alignment** with BPM + beats-per-loop for tighter rhythmic loops.
+6. Loop count supports up to 100 repeats for longer generated outputs.
+7. Extract loop sections directly from YouTube links with either BPM-based timing or exact seconds.
 
 ## Structure
 
 ```
-background-audio-loop-saas/
+loop-extender/
 ├── packages/
-│   ├── server/           # Express backend + serves frontend
-│   └── frontend/         # Vite + React
-├── package.json          # Root with workspaces
-├── turbo.json            # Turborepo configuration
-└── README.md
+│   ├── server/     # Express API + static file serving in production
+│   └── frontend/   # React app (Vite)
+├── package.json
+└── turbo.json
 ```
 
-## Prerequisites
+## Requirements
 
 - Node.js 18+
-- pnpm 9.0+
-- FFmpeg installed on your system
+- pnpm 9+
+- No system FFmpeg required by default (bundled via `@ffmpeg-installer/ffmpeg`)
 
-## Installation
+## Local development
 
 ```bash
-# Install pnpm if needed
-curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# Install dependencies
 pnpm install
-```
-
-## Development
-
-```bash
-# Run both server and frontend in dev mode
 pnpm dev
-
-# Server runs on http://localhost:4000
-# Frontend dev server runs on http://localhost:5173 (proxies /api to :4000)
 ```
 
-## Build for Production
+- API: `http://localhost:4000`
+- Frontend (dev): `http://localhost:5173`
+
+## Production build
 
 ```bash
-# Build both packages
 pnpm build
-
-# Run production server (serves frontend from dist)
 pnpm start
 ```
 
-## Features
+The server serves the built frontend in production mode.
 
-- Upload audio files (MP3, WAV, OGG, M4A)
-- Loop audio 1-100 times using FFmpeg
-- Download processed audio
-- Monorepo setup with Turborepo
-- TypeScript throughout
-- React frontend with Vite
+## API endpoints
 
-## Environment Variables
+- `POST /api/loop` – upload + create initial loop (optionally pass `bpm` + `beatsPerLoop`)
+- `POST /api/loop/extend` – extend an existing generated file (optionally pass `bpm` + `beatsPerLoop`)
+- `POST /api/loop/extract-youtube` – download audio from a YouTube URL and extract a precise loop segment (`startTimeSeconds` + either `loopDurationSeconds` or `bpm` + `beatsPerLoop`)
+- `GET /api/loop/download/:filename` – download generated output
 
-Copy `.env.example` to `.env` and configure:
+## Railway notes
 
-```
-NODE_ENV=development
-PORT=4000
-```
+- FFmpeg is bundled via `@ffmpeg-installer/ffmpeg` by default. You can override with `FFMPEG_PATH` if needed.
+- Set `NODE_ENV=production` and `PORT` from Railway.
+- Start command: `pnpm start`
 
-## License
 
-MIT
+When extending with beat alignment, the existing output is preserved and new beat-sized units are appended so the track grows continuously.
+
+Use standard YouTube watch URLs (`https://www.youtube.com/watch?v=...`) for best extraction reliability.
