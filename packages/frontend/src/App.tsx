@@ -35,12 +35,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
-  const previewUrl = useMemo(() => {
-    if (!downloadUrl) return null;
-    return `${downloadUrl}?t=${Date.now()}`;
-  }, [downloadUrl]);
-
-  const previewUrl = useMemo(() => {
+  const previewAudioUrl = useMemo(() => {
     if (!downloadUrl) return null;
     return `${downloadUrl}?t=${Date.now()}`;
   }, [downloadUrl]);
@@ -297,7 +292,7 @@ function App() {
       {downloadUrl && (
         <div style={{ marginTop: "24px", borderTop: "1px solid #ddd", paddingTop: "20px" }}>
           <h2 style={{ marginTop: 0 }}>Result</h2>
-          {previewUrl && <audio key={previewUrl} controls style={{ width: "100%", marginBottom: "12px" }} src={previewUrl} />}
+          {previewAudioUrl && <audio key={previewAudioUrl} controls style={{ width: "100%", marginBottom: "12px" }} src={previewAudioUrl} />}
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "12px" }}>
             <label>
