@@ -67,3 +67,5 @@ The server serves the built frontend in production mode.
 
 
 When extending with beat alignment, the existing output is preserved and new beat-sized units are appended so the track grows continuously.
+
+Use standard YouTube watch URLs (`https://www.youtube.com/watch?v=...`) for best extraction reliability.

@@ -179,7 +179,9 @@ router.post("/extract-youtube", async (req, res) => {
     const status =
       message.includes("must") ||
       message.includes("Provide") ||
-      message.includes("Invalid YouTube URL")
+      message.includes("Invalid YouTube URL") ||
+      message.includes("unavailable") ||
+      message.includes("denied direct stream access")
         ? 400
         : 500;
     return res.status(status).json({ error: message });
