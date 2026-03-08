@@ -14,6 +14,7 @@ A monorepo app for continuously looping and extending short audio clips with FFm
 4. Preview and download each new version.
 5. Optionally enable **Smart beat alignment** with BPM + beats-per-loop for tighter rhythmic loops.
 6. Loop count supports up to 100 repeats for longer generated outputs.
+7. Extract loop sections directly from YouTube links with either BPM-based timing or exact seconds.
 
 ## Structure
 
@@ -55,6 +56,7 @@ The server serves the built frontend in production mode.
 
 - `POST /api/loop` – upload + create initial loop (optionally pass `bpm` + `beatsPerLoop`)
 - `POST /api/loop/extend` – extend an existing generated file (optionally pass `bpm` + `beatsPerLoop`)
+- `POST /api/loop/extract-youtube` – download audio from a YouTube URL and extract a precise loop segment (`startTimeSeconds` + either `loopDurationSeconds` or `bpm` + `beatsPerLoop`)
 - `GET /api/loop/download/:filename` – download generated output
 
 ## Railway notes

@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { loopAudio } from "../services/ffmpegLoop";
+import { extractLoopFromYouTube } from "../services/youtubeLoop";
 
 const router = Router();
 
@@ -39,6 +40,28 @@ function parseBeatOptions(body: any): { bpm?: number; beatsPerLoop?: number } {
   return { bpm, beatsPerLoop };
 }
 
+function parseLoopDurationSeconds(body: any): number {
+  const explicit = body.loopDurationSeconds ? Number(body.loopDurationSeconds) : undefined;
+  const beatOptions = parseBeatOptions(body);
+
+  if (explicit && beatOptions.bpm && beatOptions.beatsPerLoop) {
+    throw new Error("Provide either loopDurationSeconds or bpm/beatsPerLoop, not both");
+  }
+
+  if (explicit !== undefined) {
+    if (!Number.isFinite(explicit) || explicit <= 0 || explicit > 120) {
+      throw new Error("loopDurationSeconds must be > 0 and <= 120");
+    }
+    return explicit;
+  }
+
+  if (beatOptions.bpm && beatOptions.beatsPerLoop) {
+    return (60 / beatOptions.bpm) * beatOptions.beatsPerLoop;
+  }
+
+  throw new Error("Provide loopDurationSeconds or bpm/beatsPerLoop");
+}
+
 router.post("/", upload.single("audio"), async (req, res) => {
   try {
     if (!req.file) {
@@ -65,7 +88,7 @@ router.post("/", upload.single("audio"), async (req, res) => {
   } catch (error: any) {
     console.error("Loop error:", error);
     const message = error.message || "Failed to process audio";
-    const status = message.includes("must") || message.includes("provided together") ? 400 : 500;
+    const status = message.includes("must") || message.includes("Provide") ? 400 : 500;
     return res.status(status).json({ error: message });
   }
 });
@@ -111,7 +134,54 @@ router.post("/extend", async (req, res) => {
   } catch (error: any) {
     console.error("Extend loop error:", error);
     const message = error.message || "Failed to extend audio";
-    const status = message.includes("must") || message.includes("provided together") ? 400 : 500;
+    const status = message.includes("must") || message.includes("Provide") ? 400 : 500;
+    return res.status(status).json({ error: message });
+  }
+});
+
+router.post("/extract-youtube", async (req, res) => {
+  try {
+    const { url, startTimeSeconds } = req.body as {
+      url?: string;
+      startTimeSeconds?: number;
+    };
+
+    if (!url) {
+      return res.status(400).json({ error: "url is required" });
+    }
+
+    const start = Number(startTimeSeconds || 0);
+    if (!Number.isFinite(start) || start < 0 || start > 7200) {
+      return res.status(400).json({ error: "startTimeSeconds must be between 0 and 7200" });
+    }
+
+    const loopDurationSeconds = parseLoopDurationSeconds(req.body);
+
+    const outputFilename = `${uuidv4()}.mp3`;
+    const outputPath = path.join("outputs", outputFilename);
+
+    await extractLoopFromYouTube({
+      url,
+      outputPath,
+      startTimeSeconds: start,
+      loopDurationSeconds,
+    });
+
+    return res.json({
+      success: true,
+      downloadUrl: `/api/loop/download/${outputFilename}`,
+      filename: outputFilename,
+      loopDurationSeconds,
+    });
+  } catch (error: any) {
+    console.error("YouTube extract error:", error);
+    const message = error.message || "Failed to extract loop from YouTube";
+    const status =
+      message.includes("must") ||
+      message.includes("Provide") ||
+      message.includes("Invalid YouTube URL")
+        ? 400
+        : 500;
     return res.status(status).json({ error: message });
   }
 });
